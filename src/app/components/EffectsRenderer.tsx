@@ -3,8 +3,6 @@ import React, { useEffect, useState } from 'react';
 import Mediapipe from '../utils/mediapipe';
 import Threejs from '../utils/threejs';
 import { Camera } from '../modules/camera_util';
-import { drawConnectors, drawLandmarks, drawRectangle } from '../modules/drawing_utils';
-import { FACEMESH_TESSELATION } from '../modules/face_mesh';
 
 const EffectsRenderer: React.FC = () => {
     const threejs = new Threejs();
@@ -23,12 +21,15 @@ const EffectsRenderer: React.FC = () => {
         });
     };
 
-
     useEffect(() => {
         // TODO: implement
         const video: any = document.getElementById('input_video') as HTMLVideoElement
         const canvasElement: any = document.getElementById('output_canvas') as HTMLCanvasElement;
         const threeJSElement: any = document.getElementById('threejs_canvas') as HTMLCanvasElement;
+
+        const intermediaryCanvas: any = document.getElementById('intermediary_canvas') as HTMLCanvasElement;
+        const intermediaryCtx = intermediaryCanvas.getContext('2d');
+
         const canvasCtx = canvasElement.getContext('2d');
         const mediapipe = new Mediapipe();
         const threejs = new Threejs();
@@ -39,7 +40,6 @@ const EffectsRenderer: React.FC = () => {
         const threejscamera = threejs.threejscamera(canvasElement.width, canvasElement.height);
         threejscamera.position.set(0, 0, 20);
         const renderer: any = threejs.renderer(threeJSElement, canvasElement.width, canvasElement.height, true);
-        renderer.setSize(canvasElement.width, canvasElement.height);
         const Environment = (path: any) => {
             const HDR = threejs.HDRLighting(path);
             scene.environment = HDR;
@@ -50,13 +50,17 @@ const EffectsRenderer: React.FC = () => {
             refineLandmarks: true,
             enableGeometry: true
         })
-        LoadRingModel('Glasses.glb', scene);
+        LoadRingModel('https://hokei-storage.s3.ap-northeast-1.amazonaws.com/BanubaEffects/model/model1259133339_aws.glb', scene);
         faceDetection.onResults((results: any) => {
 
-            // Draw the overlays.
             canvasCtx.save();
-            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-            canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+            canvasCtx.clearRect(0, 0, 1280, 720);
+            canvasCtx.drawImage(results.image, 0, 0, 1280, 720);
+
+            intermediaryCtx.save();
+            intermediaryCtx.clearRect(0, 0, 1280, 720);
+            intermediaryCtx.drawImage(canvasElement, 0, 0, 1280, 720);
+            intermediaryCtx.drawImage(threeJSElement, 0, 0, 1280, 720);
 
             if (results.multiFaceLandmarks) {
                 if (results.multiFaceLandmarks.length > 0) {
@@ -74,18 +78,9 @@ const EffectsRenderer: React.FC = () => {
                     vector.sub(threejscamera.position).normalize();
                     let distance = threejscamera.position.z / vector.z;
                     pos.copy(threejscamera.position).add(vector.multiplyScalar(distance));
-                    let ringScale: any = threejs.Vector3(7 / results.multiFaceGeometry[0][14], 7 / results.multiFaceGeometry[0][14], 7 / results.multiFaceGeometry[0][14]);
+                    let Scale: any = threejs.Vector3(77 / results.multiFaceGeometry[0][14], 77 / results.multiFaceGeometry[0][14], 77 / results.multiFaceGeometry[0][14]);
 
-                    const BufferGeom: any = threejs.makeGeometry(results.multiFaceLandmarks[0]);
                     let raw_matrix_data = results.multiFaceGeometry[0];
-                    // maskGeometry.faces.push(new THREE.Face3(0, 1, 2), new THREE.Face3(0, 2, 3));
-
-                    // // Create mask material (e.g., red color)
-                    const Material = threejs.Material();
-
-                    // Create mask mesh
-                    const maskMesh = threejs.Mesh(BufferGeom, Material);
-                    scene.add(maskMesh);
 
 
                     const matrix = threejs.Matrix4();
@@ -95,20 +90,13 @@ const EffectsRenderer: React.FC = () => {
                     var rotationMatrix = threejs.Matrix4().makeRotationX(angleInRadians180);
                     matrix.multiply(rotationMatrix);
 
-                    threejs.updatingPosition(model3D, pos, matrix, ringScale);
-                    // drawConnectors(
-                    //     canvasCtx,
-                    //     results.multiFaceLandmarks[0],
-                    //     FACEMESH_TESSELATION,
-                    //     { color: 'white', lineWidth: 1 }
-                    // )
+                    threejs.updatingPosition(model3D, pos, matrix, Scale);
                 }
 
             }
 
-            // scene.remove(Mesh)
 
-
+            intermediaryCtx.restore();
             canvasCtx.restore();
             renderer.render(scene, threejscamera);
         })
@@ -117,9 +105,6 @@ const EffectsRenderer: React.FC = () => {
                 await faceDetection.send({ image: video, smoothFaceIntensity: 0.5 })
             }, width: 1280, height: 720
         })
-
-        // console.log(threejscamera)
-
         camera.start();
     })
     return (
@@ -127,6 +112,7 @@ const EffectsRenderer: React.FC = () => {
             <video className="input_video -scale-x-100" id="input_video"></video>
             <canvas className="output_canvas" id="output_canvas" width="1280px" height="720px"></canvas>
             <canvas className="threejs_canvas" id="threejs_canvas" width="1280px" height="720px"></canvas>
+            <canvas className="intermediary_canvas" id="intermediary_canvas" width="1280px" height="720px"></canvas>
             <div id="Loading_animation">
                 <div className="lds-dual-ring"></div>
             </div>

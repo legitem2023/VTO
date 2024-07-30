@@ -33,6 +33,16 @@ body {
   display: none;
 }
 
+.container {
+  display: flex;
+  justify-content: center;
+  /* Center the canvas horizontally */
+  overflow: hidden;
+  /* Hide the overflow caused by the canvas being wider */
+  width: 100%;
+  /* Set the parent width as needed */
+}
+
 #output_canvas,
 #threejs_canvas {
   background-color: transparent;
@@ -43,4 +53,24 @@ body {
   right: 0px;
   margin: auto;
   transform: scaleX(-1);
+  width: 100% !important;
+  height: auto !important;
+  display: none;
+}
+
+.intermediary_canvas {
+  transform: scaleX(-1);
+  z-index: 1;
+  background-color: transparent;
+  position: absolute;
+  width: 100vw;
+  height: auto;
+}
+
+@media screen and (max-width: 1280px) {
+  .intermediary_canvas {
+    position: fixed;
+    width: auto;
+    height: 100vh;
+  }
 }

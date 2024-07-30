@@ -36,10 +36,6 @@ class Threejs {
     }
     public renderer(canvas: any, width: any, height: any, antialias: boolean) {
         const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true, precision: "highp" });
-        renderer.autoClear = false;
-        renderer.clear();
-        renderer.clearDepth();
-        renderer.setClearColor(0xc0c0c0);
         renderer.setSize(width, height);
         renderer.setPixelRatio(window.devicePixelRatio || 1);
         renderer.shadowMap.enabled = true;

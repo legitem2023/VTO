@@ -545,7 +545,7 @@ export class Solution {
     gl.canvas.height = metadata.height
 
     this.solutionWasm.applyRetouch(0.5)
-    this.solutionWasm.SetupFilter(30.0, 1200.0, 2.0, 1200.0) //freq, minCutOff, beta, derivateCutOff
+    this.solutionWasm.SetupFilter(30.0, 800.0, 2.0, 800.0) //freq, minCutOff, beta, derivateCutOff
     this.solutionWasm.processFrame(
       inputStreamName,
       {
