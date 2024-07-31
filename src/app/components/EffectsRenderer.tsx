@@ -35,6 +35,8 @@ const EffectsRenderer: React.FC = () => {
     useEffect(() => {
         // TODO: implement
         const video: any = document.getElementById('input_video') as HTMLVideoElement
+
+        console.log(video.videoWidth, video.videoHeight)
         const canvasElement: any = document.getElementById('output_canvas') as HTMLCanvasElement;
         const threeJSElement: any = document.getElementById('threejs_canvas') as HTMLCanvasElement;
         const intermediaryCanvas: any = document.getElementById('intermediary_canvas') as HTMLCanvasElement;
@@ -88,7 +90,6 @@ const EffectsRenderer: React.FC = () => {
             if (results.multiFaceLandmarks) {
                 if (results.multiFaceLandmarks.length > 0) {
                     if (!model3D) return
-
                     const LandMark = scaleLandmark(results.multiFaceLandmarks, canvasElement.width, canvasElement.height)
                     //***************************************************** */
                     let optionalX = (LandMark[0][6].x) * 2 - 1;
@@ -132,7 +133,7 @@ const EffectsRenderer: React.FC = () => {
     })
     return (
         <div className="container">
-            <video className="input_video -scale-x-100" id="input_video"></video>
+            <video className="input_video -scale-x-100" id="input_video" width="1280px" height="720px"></video>
             <canvas className="output_canvas" id="output_canvas" width="1280px" height="720px"></canvas>
             <canvas className="threejs_canvas" id="threejs_canvas" width="1280px" height="720px"></canvas>
             <canvas className="intermediary_canvas" id="intermediary_canvas" width="1280px" height="720px"></canvas>

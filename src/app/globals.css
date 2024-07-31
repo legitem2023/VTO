@@ -8,6 +8,7 @@ body {
   background: linear-gradient(to bottom,
       transparent,
       rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
+  overflow: hidden;
 }
 
 
@@ -17,9 +18,9 @@ body {
 
 .container {
   display: flex;
-  justify-content: center;
   overflow: hidden;
   width: 100vw !important;
+  height: 100vh !important;
 }
 
 #output_canvas,
@@ -37,18 +38,17 @@ body {
   display: none;
 }
 
-.intermediary_canvas {
+#intermediary_canvas {
   transform: scaleX(-1);
   z-index: 1;
   background-color: transparent;
   position: absolute;
   width: 100vw !important;
   height: auto !important;
-  /* display: none; */
 }
 
 @media screen and (max-width: 1280px) {
-  .intermediary_canvas {
+  #intermediary_canvas {
     position: fixed;
     width: 100vw !important;
     height: auto !important;
