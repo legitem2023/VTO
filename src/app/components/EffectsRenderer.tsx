@@ -82,7 +82,7 @@ const EffectsRenderer: React.FC = () => {
             canvasCtx.drawImage(results.image, 0, 0, 1280, 720);
             intermediaryCtx.save();
             intermediaryCtx.clearRect(0, 0, 1280, 720);
-            intermediaryCtx.drawImage(results.image, 0, 0, 1280, 720);
+            intermediaryCtx.drawImage(canvasElement, 0, 0, 1280, 720);
             intermediaryCtx.drawImage(threeJSElement, 0, 0, 1280, 720);
 
             if (results.multiFaceLandmarks) {
