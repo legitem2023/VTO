@@ -1,37 +1,60 @@
 "use client"
 import React, { useEffect, useState } from 'react';
-import Mediapipe from '../utils/mediapipe';
 import Threejs from '../utils/threejs';
 import { Camera } from '../modules/camera_util';
-
+import { FaceMeshSolution } from '../modules/face_mesh';
+// import * as path from './modules/face'
 const EffectsRenderer: React.FC = () => {
     const threejs = new Threejs();
     let model3D: any;
-    const [useModel, setModel] = useState(null);
+    let model3DHead: any;
     const LoadRingModel = (model: any, scene: any) => {
         return new Promise((resolve: any, reject: any) => {
             threejs.Loadmodel(model, (glb) => {
-                // setModel(glb)
-
                 scene.add(glb);
                 model3D = glb;
-
                 resolve();
             });
         });
     };
-
+    const LoadRingModel_Head = (model: any, scene: any) => {
+        return new Promise((resolve: any, reject: any) => {
+            threejs.Loadmodel(model, (glb) => {
+                const Material = threejs.Material();
+                scene.add(glb);
+                model3DHead = glb;
+                model3DHead.traverse((child: any) => {
+                    if (child.isMesh) {
+                        child.material = Material;
+                    }
+                })
+                resolve();
+            });
+        });
+    };
     useEffect(() => {
         // TODO: implement
         const video: any = document.getElementById('input_video') as HTMLVideoElement
         const canvasElement: any = document.getElementById('output_canvas') as HTMLCanvasElement;
         const threeJSElement: any = document.getElementById('threejs_canvas') as HTMLCanvasElement;
-
         const intermediaryCanvas: any = document.getElementById('intermediary_canvas') as HTMLCanvasElement;
         const intermediaryCtx = intermediaryCanvas.getContext('2d');
-
         const canvasCtx = canvasElement.getContext('2d');
-        const mediapipe = new Mediapipe();
+        const mediapipe = new FaceMeshSolution({
+            locateFile: (file) => {
+                return `https://hokei-vto.s3.amazonaws.com/modules/facemesh/${file}`
+            },
+        })
+        const scaleLandmark = (landmark: any, width: number, height: number) => {
+            if (!landmark) return
+            let { x, y, z } = landmark;
+            return {
+                ...landmark,
+                x: x * width,
+                y: y * height,
+                z: z * width,
+            }
+        }
         const threejs = new Threejs();
         const pos = threejs.Vector();
         const vector = threejs.Vector();
@@ -45,28 +68,28 @@ const EffectsRenderer: React.FC = () => {
             scene.environment = HDR;
         }
         Environment("https://demo-assets.pixotronics.com/pixo/presets/environment/env-gem-1.hdr");
-        const faceDetection: any = mediapipe.faceDetection();
+        const faceDetection: any = mediapipe;
         faceDetection.setOptions({
             refineLandmarks: true,
             enableGeometry: true
         })
         LoadRingModel('https://hokei-storage.s3.ap-northeast-1.amazonaws.com/BanubaEffects/model/model1259133339_aws.glb', scene);
-        faceDetection.onResults((results: any) => {
+        LoadRingModel_Head('./Head.glb', scene);
 
+        faceDetection.onResults((results: any) => {
             canvasCtx.save();
             canvasCtx.clearRect(0, 0, 1280, 720);
             canvasCtx.drawImage(results.image, 0, 0, 1280, 720);
-
             intermediaryCtx.save();
             intermediaryCtx.clearRect(0, 0, 1280, 720);
-            intermediaryCtx.drawImage(canvasElement, 0, 0, 1280, 720);
+            intermediaryCtx.drawImage(results.image, 0, 0, 1280, 720);
             intermediaryCtx.drawImage(threeJSElement, 0, 0, 1280, 720);
 
             if (results.multiFaceLandmarks) {
                 if (results.multiFaceLandmarks.length > 0) {
                     if (!model3D) return
 
-                    const LandMark = mediapipe.scaleLandmark(results.multiFaceLandmarks, canvasElement.width, canvasElement.height)
+                    const LandMark = scaleLandmark(results.multiFaceLandmarks, canvasElement.width, canvasElement.height)
                     //***************************************************** */
                     let optionalX = (LandMark[0][6].x) * 2 - 1;
                     //***************************************************** */
@@ -82,7 +105,6 @@ const EffectsRenderer: React.FC = () => {
 
                     let raw_matrix_data = results.multiFaceGeometry[0];
 
-
                     const matrix = threejs.Matrix4();
                     matrix.fromArray(raw_matrix_data);
                     var angleInRadians = Math.PI / 4;
@@ -91,10 +113,11 @@ const EffectsRenderer: React.FC = () => {
                     matrix.multiply(rotationMatrix);
 
                     threejs.updatingPosition(model3D, pos, matrix, Scale);
+                    threejs.updatingPosition(model3DHead, pos, matrix, Scale);
+
                 }
 
             }
-
 
             intermediaryCtx.restore();
             canvasCtx.restore();

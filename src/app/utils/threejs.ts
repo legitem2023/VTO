@@ -1,28 +1,8 @@
-// import * as THREE from 'three'
-
-
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { FBXLoader } from 'three/addons/loaders/FBXLoader.js'
-import { OBJLoader } from 'three/addons/loaders/OBJLoader.js'
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
-// import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-// import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-// import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-
-import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
-import { EffectComposer, RenderPass, UnrealBloomPass, FXAAShader } from 'three/examples/jsm/Addons.js';
-
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js'
-import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
-import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js'
-import { HorizontalBlurShader } from 'three/examples/jsm/shaders/HorizontalBlurShader.js';
-import { VerticalBlurShader } from 'three/examples/jsm/shaders/VerticalBlurShader.js';
-import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
-import { MirrorShader } from 'three/examples/jsm/shaders/MirrorShader.js';
-import { TriangleBlurShader } from 'three/examples/jsm/shaders/TriangleBlurShader.js';
 import { FACE_MESH_UV } from '../modules/face_geom';
 
 class Threejs {
@@ -160,7 +140,7 @@ class Threejs {
     public updatingPosition(model: any, position: any, matrix: any, scale: any) {
         model.matrixAutoUpdate = false
         model.matrix.extractRotation(matrix);
-        model.matrix.setPosition(-position.x, position.y, 0);
+        model.matrix.setPosition(-position.x, position.y + 0.2, 0);
         model.matrix.scale(scale);
     }
     public Matrix4() {
@@ -217,7 +197,8 @@ class Threejs {
         return new THREE.Mesh(geometry, material);
     }
     public Material() {
-        return new THREE.MeshStandardMaterial({ color: 0xff0000 });
+        return new THREE.MeshStandardMaterial({ color: 0xFFFFFF, colorWrite: false, side: THREE.DoubleSide });
+
     }
     public createMaskGeometry(landmarks: any, canvasElement: HTMLCanvasElement) {
         // Example: Create a rectangular mask around the face

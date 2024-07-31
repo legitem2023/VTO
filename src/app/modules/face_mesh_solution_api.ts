@@ -423,8 +423,7 @@ export class Solution {
     // the WASM loader with the pack loader. The WASM loader will wait until
     // all of the files in the pack loader are complete before resolving its
     // Promise.
-    this.wasm = await apiFn(packFn)
-
+    this.wasm = await apiFn(packFn);
     // TODO(mhays): Developer should be able to explicitly load/unload a
     // solution to prevent stealing all of the WebGL resources (e.g., Chrome
     // may limit the number of WebGL contexts by domain).
