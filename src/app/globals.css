@@ -32,7 +32,7 @@ body {
   right: 0px;
   margin: auto;
   transform: scaleX(-1);
-  width: 100% !important;
+  width: 100vw !important;
   height: auto !important;
   display: none;
 }
@@ -42,15 +42,15 @@ body {
   z-index: 1;
   background-color: transparent;
   position: absolute;
-  width: 100vw;
-  height: auto;
+  width: 100vw !important;
+  height: auto !important;
   /* display: none; */
 }
 
 @media screen and (max-width: 1280px) {
   .intermediary_canvas {
     position: fixed;
-    width: 100vw;
-    height: auto;
+    width: 100vw !important;
+    height: auto !important;
   }
 }
